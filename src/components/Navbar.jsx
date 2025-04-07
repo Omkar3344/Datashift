@@ -45,7 +45,7 @@ const Navbar = () => {
           />
         </svg>
 
-        <h1 className="font-overpass text-base tracking-[5%] mt-1">App Name</h1>
+        <h1 className="font-overpass text-base tracking-[5%] mt-1">DataShift</h1>
       </div>
 
       {user ? (

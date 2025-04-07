@@ -54,7 +54,7 @@ const SignIn = () => {
         <div className="flex flex-col items-center justify-center w-1/2 h-full px-[180px]">
           <div className="items-start pb-8 w-full">
             <h1 className="font-overpass text-3xl text-left tracking-[5%]">
-              App Name
+              DataShift
             </h1>
             <p className="text-gray-600">
               Join Us and Capture, Organize, and Elevate Your Ideas.
