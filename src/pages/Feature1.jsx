@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { useAuth } from "../lib/context/AuthContext";
@@ -12,18 +12,41 @@ import {
   Download,
   Trash2,
   RefreshCw,
+  Table,
+  BarChart as BarChartIcon,
+  Eye,
 } from "lucide-react";
+// Import Recharts components
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 const Feature1 = () => {
+  // Existing state variables
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
-  // Removed inputFormat state
   const [outputFormat, setOutputFormat] = useState("json");
   const [convertedData, setConvertedData] = useState(null);
   const [isConverting, setIsConverting] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
   const { user } = useAuth();
+  
+  // New state variables for preview and visualization
+  const [showPreview, setShowPreview] = useState(true);
+  const [showCharts, setShowCharts] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
+  const [chartType, setChartType] = useState("bar");
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -40,6 +63,9 @@ const Feature1 = () => {
     setFileName("");
     setConvertedData(null);
     setError("");
+    setPreviewData(null);
+    setShowCharts(false);
+    setShowPreview(true);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -97,6 +123,9 @@ const Feature1 = () => {
         data = await readXLSX(file);
       }
 
+      // Set the preview data
+      setPreviewData(data);
+      
       // Convert to output format
       let convertedResult;
       if (outputFormat === "csv") {
@@ -112,6 +141,9 @@ const Feature1 = () => {
         data: convertedResult,
         format: outputFormat,
       });
+      
+      // Show charts after conversion
+      setShowCharts(true);
     } catch (err) {
       console.error("Conversion error:", err);
       setError(`Error converting file: ${err.message}`);
@@ -141,16 +173,104 @@ const Feature1 = () => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
+        const fileContent = e.target.result;
+        
+        // First try standard parsing
         try {
-          const jsonData = JSON.parse(e.target.result);
+          const jsonData = JSON.parse(fileContent);
           resolve(jsonData);
-        } catch (error) {
-          reject(new Error("Invalid JSON file"));
+          return;
+        } catch (initialError) {
+          console.log("Initial JSON parse failed, trying recovery methods...");
+          
+          // Try recovery methods
+          try {
+            // Method 1: Look for valid JSON objects in the content
+            const cleanedData = attemptJSONRecovery(fileContent);
+            if (cleanedData) {
+              setError("Warning: File contained trailing data that was removed.");
+              resolve(cleanedData);
+              return;
+            }
+            
+            // If all recovery methods fail, throw the original error
+            reject(new Error(
+              "Invalid JSON format. The file contains trailing data or syntax errors that couldn't be automatically fixed. Please ensure it's a valid JSON file."
+            ));
+          } catch (recoveryError) {
+            reject(new Error(
+              "Failed to process JSON: " + (recoveryError.message || initialError.message)
+            ));
+          }
         }
       };
       reader.onerror = () => reject(new Error("Error reading file"));
       reader.readAsText(file);
     });
+  };
+
+  // Function to attempt recovery of valid JSON from malformed content
+  const attemptJSONRecovery = (content) => {
+    // Strategy 1: Find the first complete JSON object
+    try {
+      // Look for patterns that typically indicate a complete JSON object
+      const jsonObjectRegex = /\{(?:[^{}]|(\{(?:[^{}]|(?:\{[^{}]*\}))*\}))*\}/g;
+      const matches = content.match(jsonObjectRegex);
+      
+      if (matches && matches.length > 0) {
+        // If we found one valid object, return it
+        if (matches.length === 1) {
+          return JSON.parse(matches[0]);
+        }
+        
+        // If we found multiple objects, try to combine them into an array
+        if (matches.length > 1) {
+          const parsedObjects = [];
+          for (const match of matches) {
+            try {
+              parsedObjects.push(JSON.parse(match));
+            } catch (e) {
+              // Skip invalid objects
+            }
+          }
+          
+          if (parsedObjects.length > 0) {
+            return parsedObjects;
+          }
+        }
+      }
+      
+      // Strategy 2: Try to find valid JSON array
+      const jsonArrayRegex = /\[(?:[^\[\]]|(\[(?:[^\[\]]|(?:\[[^\[\]]*\]))*\]))*\]/g;
+      const arrayMatches = content.match(jsonArrayRegex);
+      
+      if (arrayMatches && arrayMatches.length > 0) {
+        // Try to parse the first array match
+        return JSON.parse(arrayMatches[0]);
+      }
+      
+      // Strategy 3: Look for the largest subset of the file that could be valid JSON
+      // This handles cases where there might be text before or after the JSON
+      for (let i = 0; i < content.length; i++) {
+        if (content[i] === '{' || content[i] === '[') {
+          // Found a potential start of JSON
+          for (let j = content.length; j > i; j--) {
+            const potentialJSON = content.substring(i, j);
+            try {
+              const parsed = JSON.parse(potentialJSON);
+              return parsed;
+            } catch (e) {
+              // Continue trying smaller subsets
+            }
+          }
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      console.error("Recovery attempt failed:", e);
+      return null;
+    }
   };
 
   const readXLSX = (file) => {
@@ -487,6 +607,282 @@ const Feature1 = () => {
             )}
           </div>
         )}
+
+        {/* Add this to the JSX in the return statement, after the Converted File section */}
+        {convertedData && previewData && (
+          <div className="bg-white border rounded-lg overflow-hidden">
+            <div className="border-b">
+              <nav className="flex" aria-label="Tabs">
+                <button
+                  onClick={() => {
+                    setShowPreview(true);
+                    setShowCharts(false);
+                  }}
+                  className={`${
+                    showPreview
+                      ? 'border-black text-black'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm`}
+                >
+                  <div className="flex items-center justify-center">
+                    <Table className="w-4 h-4 mr-2" />
+                    Data Preview
+                  </div>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPreview(false);
+                    setShowCharts(true);
+                  }}
+                  className={`${
+                    showCharts
+                      ? 'border-black text-black'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm`}
+                >
+                  <div className="flex items-center justify-center">
+                    <BarChartIcon className="w-4 h-4 mr-2" />
+                    Charts
+                  </div>
+                </button>
+              </nav>
+            </div>
+            
+            <div className="p-4">
+              {showPreview && (
+                <>
+                  <h3 className="text-lg font-medium mb-4">Data Preview</h3>
+                  <DataPreview data={previewData} />
+                </>
+              )}
+              
+              {showCharts && (
+                <>
+                  <h3 className="text-lg font-medium mb-4">Data Visualization</h3>
+                  <ChartVisualization data={previewData} type={chartType} />
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const DataPreview = ({ data }) => {
+  // If data is not an array or empty, show a message
+  if (!Array.isArray(data) || data.length === 0) {
+    return <p className="text-center text-gray-500 py-4">No data to preview</p>;
+  }
+
+  // Get headers - assuming first item has all fields
+  const headers = Object.keys(data[0]);
+  
+  // Limit preview to first 10 rows
+  const previewRows = data.slice(0, 10);
+
+  return (
+    <div className="overflow-x-auto border rounded-lg">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            {headers.map((header, idx) => (
+              <th 
+                key={idx}
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {previewRows.map((row, rowIdx) => (
+            <tr key={rowIdx}>
+              {headers.map((header, cellIdx) => (
+                <td 
+                  key={cellIdx}
+                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                >
+                  {row[header]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const ChartVisualization = ({ data, type }) => {
+  // Add local state for chart type that's initialized with the type prop
+  const [localChartType, setLocalChartType] = useState(type);
+  
+  // Update local chart type when the prop changes
+  useEffect(() => {
+    setLocalChartType(type);
+  }, [type]);
+  
+  // Process data for visualization
+  const chartData = useMemo(() => {
+    if (!Array.isArray(data) || data.length === 0) return [];
+    
+    // Find numeric columns for charting
+    const firstRow = data[0];
+    const numericColumns = Object.keys(firstRow).filter(key => 
+      typeof firstRow[key] === 'number' || !isNaN(Number(firstRow[key]))
+    );
+    
+    // Find potential categorical columns
+    const categoricalColumns = Object.keys(firstRow).filter(key => 
+      typeof firstRow[key] === 'string' && !numericColumns.includes(key)
+    );
+    
+    if (numericColumns.length === 0) {
+      // No numeric data to chart
+      return [];
+    }
+    
+    if (localChartType === "pie" && categoricalColumns.length > 0) {
+      // For pie chart, we need categorical and numeric data
+      const categoryColumn = categoricalColumns[0];
+      const valueColumn = numericColumns[0];
+      
+      // Group by category and sum values
+      const aggregated = data.reduce((acc, row) => {
+        const category = row[categoryColumn] || 'Unknown';
+        const value = Number(row[valueColumn]) || 0;
+        
+        if (!acc[category]) acc[category] = 0;
+        acc[category] += value;
+        
+        return acc;
+      }, {});
+      
+      return Object.entries(aggregated).map(([name, value]) => ({
+        name,
+        value
+      }));
+    } else {
+      // For bar chart or default
+      if (categoricalColumns.length > 0) {
+        // Use first categorical column as x-axis
+        const categoryColumn = categoricalColumns[0];
+        
+        // Process data for chart
+        return data.slice(0, 10).map(row => {
+          const chartRow = { name: row[categoryColumn] || 'Unknown' };
+          numericColumns.forEach(col => {
+            chartRow[col] = Number(row[col]) || 0;
+          });
+          return chartRow;
+        });
+      } else {
+        // No categorical column, use row index
+        return data.slice(0, 10).map((row, index) => {
+          const chartRow = { name: `Row ${index + 1}` };
+          numericColumns.forEach(col => {
+            chartRow[col] = Number(row[col]) || 0;
+          });
+          return chartRow;
+        });
+      }
+    }
+  }, [data, localChartType]);
+  
+  // Get columns for bar chart
+  const barColumns = useMemo(() => {
+    if (!chartData[0]) return [];
+    return Object.keys(chartData[0]).filter(key => key !== 'name');
+  }, [chartData]);
+  
+  // Colors for the charts
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  
+  if (chartData.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <p className="text-gray-500">No suitable data for charts</p>
+        <p className="text-sm text-gray-400 mt-2">Charts require numeric data</p>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="py-4">
+      <div className="flex justify-end mb-4">
+        <div className="inline-flex rounded-md shadow-sm" role="group">
+          <button
+            onClick={() => setLocalChartType("bar")}
+            className={`px-4 py-2 text-sm font-medium ${
+              localChartType === "bar" 
+                ? "bg-black text-white" 
+                : "bg-white text-gray-700 hover:bg-gray-50"
+            } border border-gray-300 rounded-l-lg`}
+          >
+            Bar Chart
+          </button>
+          <button
+            onClick={() => setLocalChartType("pie")}
+            className={`px-4 py-2 text-sm font-medium ${
+              localChartType === "pie" 
+                ? "bg-black text-white" 
+                : "bg-white text-gray-700 hover:bg-gray-50"
+            } border-t border-b border-r border-gray-300 rounded-r-lg`}
+          >
+            Pie Chart
+          </button>
+        </div>
+      </div>
+      
+      <div className="h-80 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          {localChartType === "pie" ? (
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={120}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          ) : (
+            <BarChart
+              data={chartData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              {barColumns.map((column, index) => (
+                <Bar 
+                  key={column} 
+                  dataKey={column} 
+                  fill={COLORS[index % COLORS.length]} 
+                />
+              ))}
+            </BarChart>
+          )}
+        </ResponsiveContainer>
       </div>
     </div>
   );

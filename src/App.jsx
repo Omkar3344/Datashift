@@ -25,6 +25,7 @@ function App() {
                 <Route path="feature2" element={<Feature2 />} />
               </Route>
             </Route>
+            <Route path="/feature1" element={<Feature1 />} />
           </Routes>
         </AuthProvider>
       </Router>

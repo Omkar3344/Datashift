@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation and useNavigate
 import AuthNavbar from "../components/AuthNavbar";
 import { useAuth } from "../lib/context/AuthContext";
 
@@ -13,8 +14,21 @@ const SignIn = () => {
   const [mailError, setMailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const { user, loginUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the returnTo path from location state or default to dashboard
+  const returnTo = location.state?.returnTo || "/";
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate(returnTo);
+    }
+  }, [user, navigate, returnTo]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -30,21 +44,30 @@ const SignIn = () => {
     setError("");
     setMailError("");
     setPasswordError("");
+    setIsLoading(true);
 
     // Validate email
     if (!validateEmail(email)) {
       setMailError("Please enter a valid email address");
+      setIsLoading(false);
       return;
     }
 
     // Validate password
     if (!validatePassword(password)) {
       setPasswordError("Password must be at least 8 characters long");
+      setIsLoading(false);
       return;
     }
 
-    const userInfo = { email, password };
-    await loginUser(userInfo);
+    try {
+      const userInfo = { email, password };
+      await loginUser(userInfo);
+      // The useEffect will handle redirection once user state updates
+    } catch (err) {
+      setError(err.message || "Failed to sign in. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -117,9 +140,10 @@ const SignIn = () => {
               </div>
               <button
                 onClick={handleSignIn}
-                className="text-white bg-black rounded-full py-2 w-full"
+                disabled={isLoading}
+                className="text-white bg-black rounded-full py-2 w-full disabled:opacity-70"
               >
-                Sign In
+                {isLoading ? "Signing In..." : "Sign In"}
               </button>
               {error && <p className="text-red-500 text-sm">{error}</p>}
             </form>
