@@ -32,7 +32,7 @@ import {
 } from "recharts";
 
 const Feature1 = () => {
-  // Existing state variables
+  // All state variables remain unchanged
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [outputFormat, setOutputFormat] = useState("json");
@@ -42,12 +42,12 @@ const Feature1 = () => {
   const fileInputRef = useRef(null);
   const { user } = useAuth();
   
-  // New state variables for preview and visualization
   const [showPreview, setShowPreview] = useState(true);
   const [showCharts, setShowCharts] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const [chartType, setChartType] = useState("bar");
 
+  // All functions remain unchanged
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -430,25 +430,25 @@ const Feature1 = () => {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-5xl mx-auto px-6 py-12">
-      <div className="space-y-6">
+    <div className="min-h-screen w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="space-y-4 sm:space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold">File Converter</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold">File Converter</h1>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">
             Convert between CSV, JSON, and XLSX formats
           </p>
         </div>
 
-        {/* File Upload Area */}
+        {/* File Upload Area - more padding on larger screens */}
         <div
-          className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center"
+          className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-8 text-center"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
           {!file ? (
-            <div className="space-y-4">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-              <div className="text-sm text-gray-600">
+            <div className="space-y-3 sm:space-y-4">
+              <Upload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
+              <div className="text-xs sm:text-sm text-gray-600">
                 <label
                   htmlFor="file-upload"
                   className="relative cursor-pointer rounded-md bg-white font-medium text-black focus-within:outline-none"
@@ -472,9 +472,9 @@ const Feature1 = () => {
             </div>
           ) : (
             <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 {getFileIcon(determineFileFormat(fileName))}
-                <span className="text-sm font-medium truncate max-w-xs">
+                <span className="text-xs sm:text-sm font-medium truncate max-w-[150px] sm:max-w-xs">
                   {fileName}
                 </span>
               </div>
@@ -482,46 +482,46 @@ const Feature1 = () => {
                 onClick={resetForm}
                 className="p-1 text-gray-500 hover:text-gray-700"
               >
-                <Trash2 className="h-5 w-5" />
+                <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
           )}
         </div>
 
-        {/* Conversion Options */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-          <div className="w-full md:w-1/3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+        {/* Conversion Options - stack on mobile, row on desktop */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <div className="w-full sm:w-1/3">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
               Input Format
             </label>
             <div className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50">
               {file ? (
-                <span className="text-sm">
+                <span className="text-xs sm:text-sm">
                   Auto-detected:{" "}
                   {determineFileFormat(fileName)?.toUpperCase() || "Unknown"}
                 </span>
               ) : (
-                <span className="text-sm text-gray-500">
+                <span className="text-xs sm:text-sm text-gray-500">
                   Auto-detection (Upload a file first)
                 </span>
               )}
             </div>
           </div>
 
-          <div className="self-end mb-1">
-            <ArrowRight className="h-6 w-6 text-gray-400" />
+          <div className="self-center my-2 sm:self-end sm:mb-1 sm:my-0">
+            <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
           </div>
 
-          <div className="w-full md:w-1/3">
+          <div className="w-full sm:w-1/3">
             <label
               htmlFor="output-format"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
             >
               Output Format
             </label>
             <select
               id="output-format"
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black"
+              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black text-xs sm:text-sm"
               value={outputFormat}
               onChange={(e) => setOutputFormat(e.target.value)}
             >
@@ -533,15 +533,15 @@ const Feature1 = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-4 sm:mt-6">
           <button
             onClick={convertFile}
             disabled={!file || isConverting}
-            className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isConverting ? (
               <>
-                <RefreshCw className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                <RefreshCw className="animate-spin -ml-1 mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 Converting...
               </>
             ) : (
@@ -552,51 +552,51 @@ const Feature1 = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="text-sm text-red-600 text-center">{error}</div>
+          <div className="text-xs sm:text-sm text-red-600 text-center">{error}</div>
         )}
 
         {/* Converted File */}
         {convertedData && (
-          <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-lg space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
               <div className="flex items-center space-x-2">
                 {getFileIcon(convertedData.format)}
-                <h3 className="text-sm font-medium">
+                <h3 className="text-xs sm:text-sm font-medium">
                   Converted to {convertedData.format.toUpperCase()}
                 </h3>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap gap-2">
                 {user ? (
                   <button
                     onClick={saveToAppwrite}
-                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-black hover:bg-gray-800"
+                    className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 border border-transparent text-xs font-medium rounded text-white bg-black hover:bg-gray-800"
                   >
-                    <Upload className="h-4 w-4 mr-1" />
+                    <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     Save to Cloud
                   </button>
                 ) : (
                   <button
-                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-gray-400 bg-gray-200 cursor-not-allowed"
+                    className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 border border-transparent text-xs font-medium rounded text-gray-400 bg-gray-200 cursor-not-allowed"
                     disabled
                     title="Login to save files to cloud"
                   >
-                    <Upload className="h-4 w-4 mr-1" />
+                    <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     Save to Cloud
                   </button>
                 )}
                 <button
                   onClick={downloadFile}
-                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-black hover:bg-gray-800"
+                  className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 border border-transparent text-xs font-medium rounded text-white bg-black hover:bg-gray-800"
                 >
-                  <Download className="h-4 w-4 mr-1" />
+                  <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   Download
                 </button>
               </div>
             </div>
 
             {convertedData.format !== "xlsx" && (
-              <div className="overflow-auto max-h-40 bg-white p-2 rounded border border-gray-200">
-                <pre className="text-xs">
+              <div className="overflow-auto max-h-36 sm:max-h-40 bg-white p-2 rounded border border-gray-200">
+                <pre className="text-[10px] sm:text-xs">
                   {typeof convertedData.data === "string"
                     ? convertedData.data.length > 1000
                       ? convertedData.data.substring(0, 1000) + "..."
@@ -608,7 +608,7 @@ const Feature1 = () => {
           </div>
         )}
 
-        {/* Add this to the JSX in the return statement, after the Converted File section */}
+        {/* Data Preview and Charts Section */}
         {convertedData && previewData && (
           <div className="bg-white border rounded-lg overflow-hidden">
             <div className="border-b">
@@ -622,10 +622,10 @@ const Feature1 = () => {
                     showPreview
                       ? 'border-black text-black'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm`}
+                  } flex-1 py-2 sm:py-4 px-1 text-center border-b-2 font-medium text-xs sm:text-sm`}
                 >
                   <div className="flex items-center justify-center">
-                    <Table className="w-4 h-4 mr-2" />
+                    <Table className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     Data Preview
                   </div>
                 </button>
@@ -638,27 +638,27 @@ const Feature1 = () => {
                     showCharts
                       ? 'border-black text-black'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm`}
+                  } flex-1 py-2 sm:py-4 px-1 text-center border-b-2 font-medium text-xs sm:text-sm`}
                 >
                   <div className="flex items-center justify-center">
-                    <BarChartIcon className="w-4 h-4 mr-2" />
+                    <BarChartIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     Charts
                   </div>
                 </button>
               </nav>
             </div>
             
-            <div className="p-4">
+            <div className="p-3 sm:p-4">
               {showPreview && (
                 <>
-                  <h3 className="text-lg font-medium mb-4">Data Preview</h3>
+                  <h3 className="text-base sm:text-lg font-medium mb-2 sm:mb-4">Data Preview</h3>
                   <DataPreview data={previewData} />
                 </>
               )}
               
               {showCharts && (
                 <>
-                  <h3 className="text-lg font-medium mb-4">Data Visualization</h3>
+                  <h3 className="text-base sm:text-lg font-medium mb-2 sm:mb-4">Data Visualization</h3>
                   <ChartVisualization data={previewData} type={chartType} />
                 </>
               )}
@@ -690,7 +690,7 @@ const DataPreview = ({ data }) => {
             {headers.map((header, idx) => (
               <th 
                 key={idx}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-2 sm:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 {header}
               </th>
@@ -703,7 +703,7 @@ const DataPreview = ({ data }) => {
               {headers.map((header, cellIdx) => (
                 <td 
                   key={cellIdx}
-                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap text-[10px] sm:text-sm text-gray-500"
                 >
                   {row[header]}
                 </td>
@@ -727,6 +727,7 @@ const ChartVisualization = ({ data, type }) => {
   
   // Process data for visualization
   const chartData = useMemo(() => {
+    // Data processing logic remains the same
     if (!Array.isArray(data) || data.length === 0) return [];
     
     // Find numeric columns for charting
@@ -746,11 +747,10 @@ const ChartVisualization = ({ data, type }) => {
     }
     
     if (localChartType === "pie" && categoricalColumns.length > 0) {
-      // For pie chart, we need categorical and numeric data
+      // For pie chart logic
       const categoryColumn = categoricalColumns[0];
       const valueColumn = numericColumns[0];
       
-      // Group by category and sum values
       const aggregated = data.reduce((acc, row) => {
         const category = row[categoryColumn] || 'Unknown';
         const value = Number(row[valueColumn]) || 0;
@@ -768,10 +768,8 @@ const ChartVisualization = ({ data, type }) => {
     } else {
       // For bar chart or default
       if (categoricalColumns.length > 0) {
-        // Use first categorical column as x-axis
         const categoryColumn = categoricalColumns[0];
         
-        // Process data for chart
         return data.slice(0, 10).map(row => {
           const chartRow = { name: row[categoryColumn] || 'Unknown' };
           numericColumns.forEach(col => {
@@ -780,7 +778,6 @@ const ChartVisualization = ({ data, type }) => {
           return chartRow;
         });
       } else {
-        // No categorical column, use row index
         return data.slice(0, 10).map((row, index) => {
           const chartRow = { name: `Row ${index + 1}` };
           numericColumns.forEach(col => {
@@ -803,20 +800,20 @@ const ChartVisualization = ({ data, type }) => {
   
   if (chartData.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <p className="text-gray-500">No suitable data for charts</p>
-        <p className="text-sm text-gray-400 mt-2">Charts require numeric data</p>
+      <div className="flex flex-col items-center justify-center h-40 sm:h-64">
+        <p className="text-gray-500 text-xs sm:text-sm">No suitable data for charts</p>
+        <p className="text-xs text-gray-400 mt-2">Charts require numeric data</p>
       </div>
     );
   }
   
   return (
-    <div className="py-4">
-      <div className="flex justify-end mb-4">
+    <div className="py-2 sm:py-4">
+      <div className="flex justify-end mb-2 sm:mb-4">
         <div className="inline-flex rounded-md shadow-sm" role="group">
           <button
             onClick={() => setLocalChartType("bar")}
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium ${
               localChartType === "bar" 
                 ? "bg-black text-white" 
                 : "bg-white text-gray-700 hover:bg-gray-50"
@@ -826,7 +823,7 @@ const ChartVisualization = ({ data, type }) => {
           </button>
           <button
             onClick={() => setLocalChartType("pie")}
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium ${
               localChartType === "pie" 
                 ? "bg-black text-white" 
                 : "bg-white text-gray-700 hover:bg-gray-50"
@@ -837,7 +834,7 @@ const ChartVisualization = ({ data, type }) => {
         </div>
       </div>
       
-      <div className="h-80 w-full">
+      <div className="h-60 sm:h-80 w-full">
         <ResponsiveContainer width="100%" height="100%">
           {localChartType === "pie" ? (
             <PieChart>
@@ -847,7 +844,7 @@ const ChartVisualization = ({ data, type }) => {
                 cy="50%"
                 labelLine={false}
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={120}
+                outerRadius={window.innerWidth < 640 ? 80 : 120}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -863,16 +860,16 @@ const ChartVisualization = ({ data, type }) => {
               data={chartData}
               margin={{
                 top: 5,
-                right: 30,
-                left: 20,
+                right: window.innerWidth < 640 ? 10 : 30,
+                left: window.innerWidth < 640 ? 10 : 20,
                 bottom: 5,
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+              <XAxis dataKey="name" tick={{fontSize: window.innerWidth < 640 ? 10 : 12}} />
+              <YAxis tick={{fontSize: window.innerWidth < 640 ? 10 : 12}} />
               <Tooltip />
-              <Legend />
+              <Legend wrapperStyle={{fontSize: window.innerWidth < 640 ? 10 : 12}} />
               {barColumns.map((column, index) => (
                 <Bar 
                   key={column} 

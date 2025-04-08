@@ -61,18 +61,18 @@ const SignUp = () => {
   return (
     <div>
       <AuthNavbar />
-      <div className="bg-[#fffffb] flex justify-center items-center w-full h-[calc(100vh-64px)]">
-        <div className="flex flex-col items-center justify-center w-1/2 h-full px-[180px]">
-          <div className="items-start pb-8 w-full">
-            <h1 className="font-overpass text-3xl text-left tracking-[5%]">
+      <div className="bg-[#fffffb] flex flex-col md:flex-row justify-center items-center w-full min-h-[calc(100vh-64px)]">
+        <div className="flex flex-col items-center justify-center w-full md:w-1/2 h-full px-6 sm:px-10 md:px-16 lg:px-24 xl:px-[180px] py-10 md:py-0">
+          <div className="items-start pb-6 md:pb-8 w-full">
+            <h1 className="font-overpass text-2xl md:text-3xl text-left tracking-[5%]">
               DataShift
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm md:text-base">
               Join Us and Capture, Organize, and Elevate Your Ideas.
             </p>
           </div>
           <div className="flex flex-col w-full">
-            <form className="space-y-6">
+            <form className="space-y-4 md:space-y-6">
               <div className="flex flex-col w-full">
                 <label
                   htmlFor="name"
@@ -90,7 +90,7 @@ const SignUp = () => {
                   name="name"
                   autoComplete="off"
                   placeholder="John Doe"
-                  className="border-b border-gray-300 focus:outline-hidden pl py-2 "
+                  className="border-b border-gray-300 focus:outline-hidden pl py-2 w-full"
                 />
                 {nameError && (
                   <p className="text-red-500 text-sm">{nameError}</p>
@@ -113,7 +113,7 @@ const SignUp = () => {
                   name="email"
                   autoComplete="off"
                   placeholder="john@gmail.com"
-                  className="border-b border-gray-300 focus:outline-hidden pl py-2 "
+                  className="border-b border-gray-300 focus:outline-hidden pl py-2 w-full"
                 />
                 {mailError && (
                   <p className="text-red-500 text-sm">{mailError}</p>
@@ -136,7 +136,7 @@ const SignUp = () => {
                   name="password"
                   autoComplete="off"
                   placeholder="••••••••"
-                  className="border-b border-gray-300 focus:outline-hidden pl py-2 "
+                  className="border-b border-gray-300 focus:outline-hidden pl py-2 w-full"
                 />
                 <button
                   type="button"
@@ -158,11 +158,11 @@ const SignUp = () => {
             </form>
           </div>
         </div>
-        <div className="relative w-1/2 h-full">
+        <div className="hidden md:block relative w-full md:w-1/2 h-full md:h-[calc(100vh-64px)]">
           <img
             src={auth}
             alt="auth-image"
-            className="absoute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
       </div>

@@ -127,11 +127,11 @@ const Feature2 = () => {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-5xl mx-auto px-6 py-12">
-      <div className="space-y-6">
+    <div className="min-h-screen w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="space-y-4 sm:space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold">My Files</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold">My Files</h1>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">
             Manage your converted and stored files
           </p>
         </div>
@@ -140,49 +140,49 @@ const Feature2 = () => {
         <div className="flex justify-end">
           <button
             onClick={fetchUserFiles}
-            className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 border border-gray-300 rounded text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
           >
-            <RefreshCw className="h-4 w-4 mr-1" />
+            <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
             Refresh Files
           </button>
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="text-sm text-red-600 text-center">{error}</div>
+          <div className="text-xs sm:text-sm text-red-600 text-center">{error}</div>
         )}
 
         {/* Loading state */}
         {loading ? (
-          <div className="flex justify-center py-8">
-            <RefreshCw className="animate-spin h-8 w-8 text-gray-500" />
+          <div className="flex justify-center py-6 sm:py-8">
+            <RefreshCw className="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-gray-500" />
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow overflow-hidden">
             {files.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-                <FolderOpen className="h-16 w-16 text-gray-300 mb-4" />
-                <p>No files found. Convert some files in the File Converter.</p>
+              <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-gray-500">
+                <FolderOpen className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 mb-4" />
+                <p className="text-xs sm:text-sm text-center px-4">No files found. Convert some files in the File Converter.</p>
               </div>
             ) : (
               <ul className="divide-y divide-gray-200">
                 {files.map((file) => (
-                  <li key={file.$id} className="px-4 py-4 sm:px-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
+                  <li key={file.$id} className="px-3 py-3 sm:px-6 sm:py-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                      <div className="flex items-start sm:items-center">
                         <div className="flex-shrink-0">
-                          <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                            {getFileIcon(file.mimeType)}
+                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                            {getFileIcon(file.mimeType, "w-4 h-4 sm:w-6 sm:h-6")}
                           </div>
                         </div>
-                        <div className="ml-4">
-                          <h2 className="text-sm font-medium text-gray-900">
+                        <div className="ml-3 sm:ml-4">
+                          <h2 className="text-xs sm:text-sm font-medium text-gray-900 break-all sm:break-normal">
                             {file.name}
                           </h2>
-                          <div className="mt-1 flex items-center text-xs text-gray-500">
+                          <div className="mt-1 flex flex-wrap items-center text-[10px] sm:text-xs text-gray-500">
                             <span>{formatDate(file.$createdAt)}</span>
                             <span className="mx-1">•</span>
-                            <span>
+                            <span className="max-w-[150px] sm:max-w-none truncate">
                               {file.$metadata?.originalName || "Converted File"}
                             </span>
                             {file.$metadata?.conversionType && (
@@ -194,19 +194,19 @@ const Feature2 = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-2 ml-11 sm:ml-0">
                         <button
                           onClick={() => downloadFile(file.$id, file.name)}
-                          className="inline-flex items-center px-2 py-1 border border-transparent rounded text-xs text-white bg-green-600 hover:bg-green-700"
+                          className="inline-flex items-center px-1.5 sm:px-2 py-1 border border-transparent rounded text-[10px] sm:text-xs text-white bg-green-600 hover:bg-green-700"
                         >
-                          <Download className="h-3 w-3 mr-1" />
+                          <Download className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1" />
                           Download
                         </button>
                         <button
                           onClick={() => deleteFile(file.$id)}
-                          className="inline-flex items-center px-2 py-1 border border-transparent rounded text-xs text-white bg-red-600 hover:bg-red-700"
+                          className="inline-flex items-center px-1.5 sm:px-2 py-1 border border-transparent rounded text-[10px] sm:text-xs text-white bg-red-600 hover:bg-red-700"
                         >
-                          <Trash2 className="h-3 w-3 mr-1" />
+                          <Trash2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1" />
                           Delete
                         </button>
                       </div>
